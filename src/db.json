@@ -11,6 +11,12 @@
       "username": "Theertha",
       "email": "theertha@gmail.com",
       "password": "thee123"
+    },
+    {
+      "id": "93a9",
+      "username": "maya",
+      "email": "maya@gmail.com",
+      "password": "maya123"
     }
   ]
 }

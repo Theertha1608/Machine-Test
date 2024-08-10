@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { TextField, Button, Typography, Box } from '@mui/material';
 
 const SignupForm = () => {
     const [username, setUsername] = useState('');
@@ -7,23 +8,42 @@ const SignupForm = () => {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [touched, setTouched] = useState({
+        username: false,
+        email: false,
+        password: false,
+        confirmPassword: false,
+    });
+
+    const handleBlur = (field) => {
+        setTouched({ ...touched, [field]: true });
+    };
 
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        if (!username || !email || !password || !confirmPassword) {
-            setError('Please fill out all fields');
+        if (!username) {
+            setError('Username is required.');
+            return;
+        }
+
+        if (!email) {
+            setError('Email is required.');
+            return;
+        }
+
+        if (!password) {
+            setError('Password is required.');
             return;
         }
 
         if (password !== confirmPassword) {
-            setError('Passwords do not match');
+            setError('Passwords do not match.');
             return;
         }
 
         setError('');
         setLoading(true);
-
 
         fetch('http://localhost:5000/users', {
             method: 'POST',
@@ -33,49 +53,79 @@ const SignupForm = () => {
             .then((response) => response.json())
             .then((data) => {
                 console.log('Signup successful:', data);
+                alert('Signup successful!');
+                setUsername('');
+                setEmail('');
+                setPassword('');
+                setConfirmPassword('');
             })
-            .catch(() => setError('Error during signup'))
+            .catch(() => {
+                setError('Error during signup');
+                alert('Error during signup');
+            })
             .finally(() => setLoading(false));
     };
 
     return (
-        <div>
-            <h2>Sign Up</h2>
+        <Box sx={{ width: '100%', maxWidth: 350 }}>
+            <Typography variant="h5" gutterBottom>Sign Up</Typography>
             <form onSubmit={handleSubmit}>
-                <input
-                    type="text"
-                    placeholder="Username"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    required
-                />
-                <input
-                    type="email"
-                    placeholder="Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                />
-                <input
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                />
-                <input
-                    type="password"
-                    placeholder="Confirm Password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    required
-                />
-                {error && <p>{error}</p>}
-                <button type="submit" disabled={loading}>
+                <Box sx={{ mb: 2 }}>
+                    <TextField
+                        fullWidth
+                        label="Username"
+                        variant="outlined"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        onBlur={() => handleBlur('username')}
+                        error={touched.username && !username}
+                        helperText={touched.username && !username ? 'Username is required.' : ''}
+                    />
+                </Box>
+                <Box sx={{ mb: 2 }}>
+                    <TextField
+                        fullWidth
+                        label="Email"
+                        variant="outlined"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        onBlur={() => handleBlur('email')}
+                        error={touched.email && !email}
+                        helperText={touched.email && !email ? 'Email is required.' : ''}
+                    />
+                </Box>
+                <Box sx={{ mb: 2 }}>
+                    <TextField
+                        fullWidth
+                        label="Password"
+                        type="password"
+                        variant="outlined"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        onBlur={() => handleBlur('password')}
+                        error={touched.password && !password}
+                        helperText={touched.password && !password ? 'Password is required.' : ''}
+                    />
+                </Box>
+                <Box sx={{ mb: 2 }}>
+                    <TextField
+                        fullWidth
+                        label="Confirm Password"
+                        type="password"
+                        variant="outlined"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        onBlur={() => handleBlur('confirmPassword')}
+                        error={touched.confirmPassword && password !== confirmPassword}
+                        helperText={touched.confirmPassword && password !== confirmPassword ? 'Passwords do not match.' : ''}
+                    />
+                </Box>
+                {error && <Typography color="error">{error}</Typography>}
+                <Button fullWidth variant="contained" color="primary" type="submit" disabled={loading}>
                     {loading ? 'Registering...' : 'Register'}
-                </button>
+                </Button>
             </form>
-        </div>
+        </Box>
     );
 };
 
